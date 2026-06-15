@@ -9,7 +9,7 @@ function Splash() {
   return (
     <Box sx={{ minHeight: '100vh', display: 'grid', placeItems: 'center', bgcolor: 'background.default' }}>
       <Box sx={{ textAlign: 'center' }}>
-        <Box component="img" src="/intertech-logo.svg" alt="SEITA" sx={{ height: 56, mb: 3 }} />
+        <Box component="img" src="/intertechtransparent.png" alt="SEITA" sx={{ height: 56, mb: 3 }} />
         <CircularProgress />
       </Box>
     </Box>

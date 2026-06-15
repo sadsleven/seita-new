@@ -36,7 +36,7 @@ export function ProtectedLayout() {
 
   return (
     <AppShell
-      logoSrc="/intertech-logo.svg"
+      logoSrc="/intertechtransparent.png"
       items={navItems}
       user={topNavUser}
       userMenu={[
