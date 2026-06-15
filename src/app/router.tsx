@@ -1,33 +1,52 @@
 import { createBrowserRouter, Navigate, type RouteObject } from 'react-router-dom';
-import { authRoutes } from '@/modules/auth';
+import { authRoutes, profileRoutes } from '@/modules/auth';
 import { dashboardRoutes } from '@/modules/dashboard';
+import { eventsRoutes } from '@/modules/events';
+import { plantsRoutes } from '@/modules/plants';
+import { catalogsRoutes } from '@/modules/catalogs';
+import { usersRoutes } from '@/modules/users';
+import { productTypesRoutes } from '@/modules/productTypes';
+import { settingsRoutes } from '@/modules/settings';
 import { RequireAuth } from './RequireAuth';
 import { ProtectedLayout } from './ProtectedLayout';
 import { ScreenBoundary } from './ScreenBoundary';
-import { PlaceholderPage } from './PlaceholderPage';
 import { NotFoundPage } from './NotFoundPage';
 
-/** Wrap each routed element in a per-screen error boundary. */
+/** Wrap a leaf route's element in a per-screen error boundary (keyed by pathname). */
 const withBoundary = (route: RouteObject): RouteObject =>
   route.element ? { ...route, element: <ScreenBoundary>{route.element}</ScreenBoundary> } : route;
 
-/** Sections from section 5 not yet built — friendly stand-ins keep nav alive. */
-const placeholderRoutes: RouteObject[] = [
-  { path: '/eventos', element: <PlaceholderPage title="Eventos" icon="mdi-calendar-multiple" description="Aquí podrás crear y administrar tus congresos y ferias técnicas." /> },
-  { path: '/eventos/:id', element: <PlaceholderPage title="Detalle del evento" icon="mdi-calendar-text" description="Inicio, registro, productos, paquetes, hoteles, proveedores y facturas." /> },
-  { path: '/plantas', element: <PlaceholderPage title="Plantas" icon="mdi-factory" description="Directorio de empresas papeleras participantes y sus contactos." /> },
-  { path: '/catalogos', element: <PlaceholderPage title="Catálogos" icon="mdi-format-list-bulleted" description="Países, industrias, tipos de planta, fuentes y asociaciones." /> },
-  { path: '/usuarios', element: <PlaceholderPage title="Usuarios" icon="mdi-account-group-outline" description="Administra los usuarios del sistema y sus roles." /> },
-  { path: '/tipos-producto', element: <PlaceholderPage title="Tipos de producto" icon="mdi-tag-outline" /> },
-  { path: '/perfil', element: <PlaceholderPage title="Mi perfil" icon="mdi-account-circle" description="Edita tus datos y cambia tu contraseña." /> },
-  { path: '/configuracion', element: <PlaceholderPage title="Configuración" icon="mdi-tune-variant" description="Muestra u oculta notas y restablece los datos de demostración." /> },
-];
+/**
+ * Wrap a route and, if it has children, give the layout a STABLE boundary key
+ * (its path pattern) so navigating between its nested tabs doesn't remount it,
+ * while each child still gets its own pathname-keyed boundary.
+ */
+const withBoundaryDeep = (route: RouteObject): RouteObject => {
+  if (route.children) {
+    return {
+      ...route,
+      element: route.element ? (
+        <ScreenBoundary resetKey={route.path ?? 'layout'}>{route.element}</ScreenBoundary>
+      ) : (
+        route.element
+      ),
+      children: route.children.map(withBoundary),
+    };
+  }
+  return withBoundary(route);
+};
 
 const protectedChildren: RouteObject[] = [
   { index: true, element: <Navigate to="/panel" replace /> },
   ...dashboardRoutes,
-  ...placeholderRoutes,
-].map(withBoundary);
+  ...eventsRoutes,
+  ...plantsRoutes,
+  ...catalogsRoutes,
+  ...usersRoutes,
+  ...productTypesRoutes,
+  ...settingsRoutes,
+  ...profileRoutes,
+].map(withBoundaryDeep);
 
 export const router = createBrowserRouter([
   ...authRoutes.map(withBoundary),

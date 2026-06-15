@@ -67,12 +67,19 @@ the domain layer never sees the persistence shape. `db.reset()` re-seeds.
 
 ## Status
 
-**Built:** project scaffold, theme/tokens, lib (incl. seeded db), the full
-`components/ui` set, layouts (TopNav/AppShell/AuthLayout), per-screen error
-boundaries, and two complete modules — **auth** (`/login`, session bootstrap,
-route guard) and **dashboard** (`/panel`: greeting, próximo-evento banner, notes).
+Foundation + all core modules are built and the production build is green
+(`npm run build`). Modules:
 
-**Pending** (stubbed with friendly placeholders, nav already wired): `events`
-(+ sub-features: registration, products, packages, campaigns, rooming, hotels,
-vendors, invoices), `plants`, `catalogs`, `users`, `settings`, `profile`. Build
-them module-by-module following the same three-layer pattern.
+- **auth** — `/login` (session bootstrap + route guard), `/perfil` (edit profile + change password)
+- **dashboard** — `/panel` (greeting, próximo-evento banner, notes)
+- **events** — `/eventos` (list + delete), `/eventos/crear` (2-step wizard), `/eventos/:id` (detail with 9 nested-route tabs: Inicio, Registro, Productos, Paquetes, Campañas, Habitaciones, Hoteles, Proveedores, Facturas)
+- **plants** — `/plantas` (directory) + `/plantas/:id` (Ver más, duplicar, Contactos / Historial)
+- **catalogs** — `/catalogos` (tabbed CRUD: países, industrias, tipos, fuentes, asociaciones)
+- **users** — `/usuarios`; **productTypes** — `/tipos-producto`; **settings** — `/configuracion`
+
+Every module ships both a `StorageGateway` (localStorage demo) and an `HttpGateway`
+(Axios), swapped by `VITE_GATEWAY`.
+
+**Pending:** wire a real backend (`VITE_GATEWAY=http`), inline edit for
+products/packages/campaigns (create + delete exist today), and optional
+code-splitting (single bundle is ~800 kB).

@@ -27,7 +27,7 @@ export interface DataTableProps<T> {
 }
 
 /** Data table with bold centered headers, hover rows and custom cells. */
-export function DataTable<T extends Record<string, unknown>>({
+export function DataTable<T extends object>({
   columns,
   rows,
   rowKey = 'id',
@@ -69,14 +69,14 @@ export function DataTable<T extends Record<string, unknown>>({
           ) : (
             rows.map((row, i) => (
               <TableRow
-                key={String(row[rowKey as keyof T] ?? i)}
+                key={String((row as Record<string, unknown>)[rowKey as string] ?? i)}
                 hover
                 onClick={onRowClick ? () => onRowClick(row) : undefined}
                 sx={{ cursor: onRowClick ? 'pointer' : 'default' }}
               >
                 {columns.map((col) => (
                   <TableCell key={col.key} align={col.align ?? 'left'} sx={{ fontSize: '0.9375rem' }}>
-                    {col.render ? col.render(row) : (row[col.key as keyof T] as React.ReactNode)}
+                    {col.render ? col.render(row) : ((row as Record<string, unknown>)[col.key] as React.ReactNode)}
                   </TableCell>
                 ))}
               </TableRow>

@@ -27,11 +27,13 @@ function ScreenError({ error, onRetry }: { error: Error; onRetry: () => void }) 
 /**
  * Per-screen error boundary. Keyed by route, so navigating to another page
  * clears a previous error automatically — a render failure never blanks the app.
+ * Pass `resetKey` to override the key (e.g. a layout that should persist across
+ * its own nested tab routes instead of remounting on every sub-path change).
  */
-export function ScreenBoundary({ children }: { children: React.ReactNode }) {
+export function ScreenBoundary({ children, resetKey }: { children: React.ReactNode; resetKey?: string }) {
   const { pathname } = useLocation();
   return (
-    <ErrorBoundary key={pathname} fallback={(error, reset) => <ScreenError error={error} onRetry={reset} />}>
+    <ErrorBoundary key={resetKey ?? pathname} fallback={(error, reset) => <ScreenError error={error} onRetry={reset} />}>
       {children}
     </ErrorBoundary>
   );
