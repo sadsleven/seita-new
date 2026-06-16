@@ -13,11 +13,6 @@ export class ProductTypesStorageGateway implements ProductTypesGateway {
     }));
   }
 
-  async listPlantTypes(): Promise<string[]> {
-    await delay(80);
-    return (db.read().catalogs.plantTypes ?? []).map((p) => p.name);
-  }
-
   async create(input: CreateProductTypeInput): Promise<ProductType> {
     await delay();
     return db.write((database) => {

@@ -12,13 +12,14 @@ import {
   TextField,
   type DataTableColumn,
 } from '@/components/ui';
+import { PLANT_TYPES } from '@/lib';
 import { useProductTypes } from '../hooks/useProductTypes';
 import type { ProductType } from '../../domain/models/ProductType';
 
 const EMPTY_FORM = { name: '', description: '', availableFor: [] as string[] };
 
 export function ProductTypesPage() {
-  const { query, plantTypes, create, remove } = useProductTypes();
+  const { query, create, remove } = useProductTypes();
 
   // Add dialog state
   const [addOpen, setAddOpen] = useState(false);
@@ -27,8 +28,6 @@ export function ProductTypesPage() {
 
   // Delete confirmation
   const [deleteTarget, setDeleteTarget] = useState<ProductType | null>(null);
-
-  const plantTypeOptions = plantTypes.data ?? [];
 
   function openAdd() {
     setForm(EMPTY_FORM);
@@ -202,24 +201,16 @@ export function ProductTypesPage() {
 
           <Box>
             <Typography sx={{ fontWeight: 700, mb: 1 }}>Disponible para</Typography>
-            {plantTypes.isLoading ? (
-              <CircularProgress size={20} />
-            ) : plantTypeOptions.length ? (
-              <Box sx={{ display: 'flex', flexWrap: 'wrap', columnGap: 2, rowGap: 0.5 }}>
-                {plantTypeOptions.map((t) => (
-                  <Checkbox
-                    key={t}
-                    label={t}
-                    checked={form.availableFor.includes(t)}
-                    onChange={() => toggleAvailable(t)}
-                  />
-                ))}
-              </Box>
-            ) : (
-              <Typography variant="body2" color="text.secondary">
-                No hay tipos de planta registrados.
-              </Typography>
-            )}
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', columnGap: 2, rowGap: 0.5 }}>
+              {PLANT_TYPES.map((t) => (
+                <Checkbox
+                  key={t}
+                  label={t}
+                  checked={form.availableFor.includes(t)}
+                  onChange={() => toggleAvailable(t)}
+                />
+              ))}
+            </Box>
           </Box>
         </Stack>
       </Dialog>

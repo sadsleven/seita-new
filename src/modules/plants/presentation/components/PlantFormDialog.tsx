@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Box } from '@mui/material';
 import { Button, Dialog, Select, TextField } from '@/components/ui';
+import { INDUSTRY_NAMES, PLANT_TYPES } from '@/lib';
 import type { PlantCatalogs } from '../../domain/plantsGateway';
 import type { CreatePlantInput } from '../../domain/models/Plant';
 
@@ -152,7 +153,7 @@ export function PlantFormDialog({
               label="Tipo de planta"
               value={field.value ?? ''}
               onChange={field.onChange}
-              options={toOptions(catalogs?.plantTypes)}
+              options={toOptions(PLANT_TYPES)}
               placeholder="Selecciona un tipo"
               error={!!errors.type}
               helperText={errors.type?.message}
@@ -194,7 +195,7 @@ export function PlantFormDialog({
               label="Industria"
               value={field.value ?? ''}
               onChange={field.onChange}
-              options={toOptions(catalogs?.industries)}
+              options={toOptions(INDUSTRY_NAMES)}
               placeholder="Selecciona una industria"
               error={!!errors.industry}
               helperText={errors.industry?.message}

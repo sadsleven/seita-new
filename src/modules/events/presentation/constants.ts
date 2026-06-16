@@ -1,9 +1,11 @@
 import type { StatusTone } from '@/components/ui';
+import { INDUSTRY_NAMES } from '@/lib';
 import type { PackageValidation, RegistrationType } from '../domain/models/EventResources';
 import type { VendorEvaluation } from '../domain/models/Logistics';
 
 export const COUNTRIES = ['México', 'Estados Unidos', 'Brasil', 'Chile', 'Perú', 'Canadá'];
-export const INDUSTRIES = ['Molinos de Papel', 'Tissue', 'Celulosa', 'Empaque', 'Corrugado'];
+/** Fixed industries — single source of truth in lib/domainCatalogs. */
+export const INDUSTRIES = INDUSTRY_NAMES;
 
 export const REG_TYPES: { value: RegistrationType; label: string }[] = [
   { value: 'Attendee', label: 'Asistente' },

@@ -23,3 +23,4 @@ export type {
   SettingsRow,
 } from './db';
 export * from './format';
+export { INDUSTRIES, INDUSTRY_NAMES, PLANT_TYPES, type IndustryDef } from './domainCatalogs';

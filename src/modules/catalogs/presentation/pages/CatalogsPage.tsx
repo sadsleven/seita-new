@@ -13,6 +13,7 @@ import {
   Tabs,
   TextField,
 } from '@/components/ui';
+import { INDUSTRIES, PLANT_TYPES } from '@/lib';
 import { useCatalogsStore } from '../../domain/catalogsStore';
 import type { CatalogName, CatalogItem } from '../../domain/models/CatalogItem';
 import { useCatalog } from '../hooks/useCatalog';
@@ -59,9 +60,24 @@ type FormValues = {
 /** Catalogs whose items carry a short free-text description. */
 const HAS_DESCRIPTION: CatalogName[] = ['industries', 'plantTypes'];
 
+/** Fixed catalogs — read-only, sourced from lib/domainCatalogs (not editable for now). */
+const STATIC_CATALOGS: CatalogName[] = ['industries', 'plantTypes'];
+
+/** Build the read-only rows for a fixed catalog. */
+function staticRows(catalogName: CatalogName): CatalogItem[] {
+  if (catalogName === 'industries') {
+    return INDUSTRIES.map((it, i) => ({ id: i + 1, name: it.name, description: it.description }));
+  }
+  if (catalogName === 'plantTypes') {
+    return PLANT_TYPES.map((name, i) => ({ id: i + 1, name, description: '' }));
+  }
+  return [];
+}
+
 /* ── Inner catalog section (memoised per active catalog) ───────────────────── */
 function CatalogSection({ catalogName }: { catalogName: CatalogName }) {
   const { query, create, remove } = useCatalog(catalogName);
+  const isStatic = STATIC_CATALOGS.includes(catalogName);
   const [addOpen, setAddOpen] = useState(false);
   const [confirmId, setConfirmId] = useState<number | null>(null);
 
@@ -134,12 +150,14 @@ function CatalogSection({ catalogName }: { catalogName: CatalogName }) {
     ],
   };
 
-  const columns = [...columnsByName[catalogName], deleteCol];
+  const columns = isStatic
+    ? columnsByName[catalogName]
+    : [...columnsByName[catalogName], deleteCol];
 
   const tabLabel = TAB_ITEMS.find((t) => t.value === catalogName)?.label ?? catalogName;
 
-  /* -- Loading / error states ---------------------------------------------- */
-  if (query.isLoading) {
+  /* -- Loading / error states (skipped for fixed catalogs) ----------------- */
+  if (!isStatic && query.isLoading) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
         <CircularProgress />
@@ -147,7 +165,7 @@ function CatalogSection({ catalogName }: { catalogName: CatalogName }) {
     );
   }
 
-  if (query.isError) {
+  if (!isStatic && query.isError) {
     return (
       <Alert severity="error" title="Error al cargar el catálogo">
         No se pudieron obtener los registros. Intenta recargar la página.
@@ -155,17 +173,20 @@ function CatalogSection({ catalogName }: { catalogName: CatalogName }) {
     );
   }
 
-  const rows = (query.data ?? []) as Row[];
+  const rows = (isStatic ? staticRows(catalogName) : (query.data ?? [])) as Row[];
 
   return (
     <>
       <Card
         title={tabLabel}
         icon={TAB_ITEMS.find((t) => t.value === catalogName)?.icon}
+        subtitle={isStatic ? 'Valores fijos del sistema (no editables por ahora).' : undefined}
         action={
-          <Button icon="mdi-plus" size="sm" onClick={openAdd} loading={create.isPending}>
-            Agregar
-          </Button>
+          isStatic ? undefined : (
+            <Button icon="mdi-plus" size="sm" onClick={openAdd} loading={create.isPending}>
+              Agregar
+            </Button>
+          )
         }
       >
         <DataTable<Row>

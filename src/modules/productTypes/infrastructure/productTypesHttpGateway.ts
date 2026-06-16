@@ -10,11 +10,6 @@ export class ProductTypesHttpGateway implements ProductTypesGateway {
     return data.map(productTypeFromDto);
   }
 
-  async listPlantTypes(): Promise<string[]> {
-    const { data } = await http.get<{ name: string }[]>('/catalogs/plantTypes');
-    return data.map((d) => d.name);
-  }
-
   async create(input: CreateProductTypeInput): Promise<ProductType> {
     const { data } = await http.post<ProductTypeDto>('/product-types', input);
     return productTypeFromDto(data);
