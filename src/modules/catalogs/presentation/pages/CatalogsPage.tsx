@@ -34,10 +34,11 @@ const schemas = {
   }),
   industries: z.object({
     name: z.string().min(1, 'El nombre es requerido.'),
-    subs: z.string().optional(),
+    description: z.string().optional(),
   }),
   plantTypes: z.object({
     name: z.string().min(1, 'El nombre es requerido.'),
+    description: z.string().optional(),
   }),
   sources: z.object({
     name: z.string().min(1, 'El nombre es requerido.'),
@@ -51,9 +52,12 @@ const schemas = {
 type FormValues = {
   name: string;
   code?: string;
-  subs?: string;
+  description?: string;
   country?: string;
 };
+
+/** Catalogs whose items carry a short free-text description. */
+const HAS_DESCRIPTION: CatalogName[] = ['industries', 'plantTypes'];
 
 /* ── Inner catalog section (memoised per active catalog) ───────────────────── */
 function CatalogSection({ catalogName }: { catalogName: CatalogName }) {
@@ -68,18 +72,18 @@ function CatalogSection({ catalogName }: { catalogName: CatalogName }) {
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({
     resolver: zodResolver(schemas[catalogName]),
-    defaultValues: { name: '', code: '', subs: '', country: '' },
+    defaultValues: { name: '', code: '', description: '', country: '' },
   });
 
   const openAdd = () => {
-    reset({ name: '', code: '', subs: '', country: '' });
+    reset({ name: '', code: '', description: '', country: '' });
     setAddOpen(true);
   };
 
   const onSubmit = async (values: FormValues) => {
     const payload: FormValues = { name: values.name.trim() };
     if (catalogName === 'countries' && values.code) payload.code = values.code.trim();
-    if (catalogName === 'industries' && values.subs) payload.subs = values.subs.trim();
+    if (HAS_DESCRIPTION.includes(catalogName) && values.description) payload.description = values.description.trim();
     if (catalogName === 'associations' && values.country) payload.country = values.country.trim();
     await create.mutateAsync(payload);
     setAddOpen(false);
@@ -117,9 +121,12 @@ function CatalogSection({ catalogName }: { catalogName: CatalogName }) {
     ],
     industries: [
       { key: 'name', header: 'Nombre', align: 'left' },
-      { key: 'subs', header: 'Subtipos', align: 'left' },
+      { key: 'description', header: 'Descripción', align: 'left' },
     ],
-    plantTypes: [{ key: 'name', header: 'Nombre', align: 'left' }],
+    plantTypes: [
+      { key: 'name', header: 'Nombre', align: 'left' },
+      { key: 'description', header: 'Descripción', align: 'left' },
+    ],
     sources: [{ key: 'name', header: 'Nombre', align: 'left' }],
     associations: [
       { key: 'name', header: 'Nombre', align: 'left' },
@@ -212,13 +219,13 @@ function CatalogSection({ catalogName }: { catalogName: CatalogName }) {
               />
             )}
 
-            {catalogName === 'industries' && (
+            {HAS_DESCRIPTION.includes(catalogName) && (
               <TextField
-                label="Subtipos (separados por coma)"
-                placeholder="Ej. Imprenta, Kraft"
-                error={!!errors.subs}
-                helperText={errors.subs?.message}
-                {...register('subs')}
+                label="Descripción"
+                placeholder="Ej. PAPER INDUSTRY"
+                error={!!errors.description}
+                helperText={errors.description?.message}
+                {...register('description')}
               />
             )}
 

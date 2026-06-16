@@ -1,6 +1,6 @@
 import { http } from '@/lib';
 import type { ProductTypesGateway } from '../domain/productTypesGateway';
-import type { ProductType } from '../domain/models/ProductType';
+import type { ProductType, CreateProductTypeInput } from '../domain/models/ProductType';
 import { productTypeFromDto, type ProductTypeDto } from './dto/ProductTypeDto';
 
 /** Production product types catalog over HTTP. */
@@ -10,8 +10,13 @@ export class ProductTypesHttpGateway implements ProductTypesGateway {
     return data.map(productTypeFromDto);
   }
 
-  async create(name: string): Promise<ProductType> {
-    const { data } = await http.post<ProductTypeDto>('/product-types', { name });
+  async listPlantTypes(): Promise<string[]> {
+    const { data } = await http.get<{ name: string }[]>('/catalogs/plantTypes');
+    return data.map((d) => d.name);
+  }
+
+  async create(input: CreateProductTypeInput): Promise<ProductType> {
+    const { data } = await http.post<ProductTypeDto>('/product-types', input);
     return productTypeFromDto(data);
   }
 

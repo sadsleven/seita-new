@@ -175,7 +175,7 @@ export interface DemoDb {
   plants: PlantRow[];
   contacts: ContactRow[];
   catalogs: Record<string, CatalogItemRow[]>;
-  products: { id: number; name: string }[];
+  products: { id: number; name: string; description: string; availableFor: string[] }[];
   orders: OrderRow[];
   hotels: HotelRow[];
   nights: { booked: number; assigned: number; available: number; additional: number };
@@ -229,15 +229,16 @@ function createSeed(): DemoDb {
         { id: 5, name: 'Perú', code: 'PE' }, { id: 6, name: 'Canadá', code: 'CA' },
       ],
       industries: [
-        { id: 1, name: 'Molinos de Papel', subs: 'Imprenta, Kraft, Periódico' },
-        { id: 2, name: 'Tissue', subs: 'Higiénico, Toalla, Servilleta' },
-        { id: 3, name: 'Celulosa', subs: 'Fibra Larga, Fibra Corta, Reciclada' },
-        { id: 4, name: 'Empaque', subs: 'Corrugado, Plegadizo' },
+        { id: 1, name: 'CAN', description: 'MANUFACTURING INDUSTRY' },
+        { id: 2, name: 'PAPER', description: 'PAPER INDUSTRY' },
+        { id: 3, name: 'CORR', description: 'BOX MANUFACTURING INDUSTRY' },
       ],
       plantTypes: [
-        { id: 1, name: 'Molino Integrado' }, { id: 2, name: 'Molino de Celulosa' },
-        { id: 3, name: 'Convertidor Tissue' }, { id: 4, name: 'Planta de Corrugado' },
-        { id: 5, name: 'Fibra Reciclada' },
+        { id: 1, name: 'MAKERS', description: '' },
+        { id: 2, name: 'SUPPLIERS', description: '' },
+        { id: 3, name: 'MEDIA', description: '' },
+        { id: 4, name: 'ORGANIZERS', description: '' },
+        { id: 5, name: 'VENDORS', description: '' },
       ],
       sources: [
         { id: 1, name: 'Feria PaperWeek' }, { id: 2, name: 'Referido' },
@@ -249,10 +250,11 @@ function createSeed(): DemoDb {
       ],
     },
     products: [
-      { id: 1, name: 'Exhibition Booth (3x3)' },
-      { id: 2, name: 'Technical Presentation Slot' },
-      { id: 3, name: 'Sponsorship — Gold' },
-      { id: 4, name: 'Conference Pass' },
+      { id: 1, name: 'ATTENDEES', description: 'Standard description Attendees', availableFor: ['MAKERS', 'SUPPLIERS', 'MEDIA', 'ORGANIZERS', 'VENDORS'] },
+      { id: 2, name: 'COMPANION', description: 'Standard description Companion', availableFor: ['MAKERS', 'SUPPLIERS', 'MEDIA', 'ORGANIZERS', 'VENDORS'] },
+      { id: 3, name: 'OTHERS', description: 'Standard description Others', availableFor: ['MAKERS', 'SUPPLIERS', 'MEDIA', 'ORGANIZERS', 'VENDORS'] },
+      { id: 4, name: 'TABLETOP', description: 'Standard description Table Top', availableFor: ['SUPPLIERS', 'ORGANIZERS', 'MEDIA'] },
+      { id: 5, name: 'Technical presentation', description: 'Standard description Technical Presentation', availableFor: ['SUPPLIERS', 'ORGANIZERS', 'MAKERS', 'MEDIA'] },
     ],
     orders: [
       { id: 1, event_id: 1, plant: 'Northmill Paper Co.', contact: 'Carlos Ruiz', type: 'Attendee', spouse: true, nights: 3, amount: 1200, category: 'Paper' },

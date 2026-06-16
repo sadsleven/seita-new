@@ -6,8 +6,8 @@ export interface CatalogItem {
   name: string;
   /** ISO 2-letter code — only present for `countries`. */
   code?: string;
-  /** Comma-separated sub-industry list — only present for `industries`. */
-  subs?: string;
+  /** Short description — present for `industries` and `plantTypes`. */
+  description?: string;
   /** Country name — only present for `associations`. */
   country?: string;
 }

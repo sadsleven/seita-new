@@ -7,7 +7,7 @@ export function catalogItemFromRow(row: CatalogItemRow): CatalogItem {
     id: row.id,
     name: row.name,
     code: typeof row['code'] === 'string' ? row['code'] : undefined,
-    subs: typeof row['subs'] === 'string' ? row['subs'] : undefined,
+    description: typeof row['description'] === 'string' ? row['description'] : undefined,
     country: typeof row['country'] === 'string' ? row['country'] : undefined,
   };
 }

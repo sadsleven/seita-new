@@ -4,6 +4,8 @@ import {
   Alert,
   Button,
   Card,
+  Checkbox,
+  Chip,
   DataTable,
   Dialog,
   IconButton,
@@ -13,26 +15,47 @@ import {
 import { useProductTypes } from '../hooks/useProductTypes';
 import type { ProductType } from '../../domain/models/ProductType';
 
-export function ProductTypesPage() {
-  const { query, create, remove } = useProductTypes();
+const EMPTY_FORM = { name: '', description: '', availableFor: [] as string[] };
 
-  // Inline add row state
-  const [newName, setNewName] = useState('');
+export function ProductTypesPage() {
+  const { query, plantTypes, create, remove } = useProductTypes();
+
+  // Add dialog state
+  const [addOpen, setAddOpen] = useState(false);
+  const [form, setForm] = useState(EMPTY_FORM);
   const [nameError, setNameError] = useState('');
 
   // Delete confirmation
   const [deleteTarget, setDeleteTarget] = useState<ProductType | null>(null);
 
+  const plantTypeOptions = plantTypes.data ?? [];
+
+  function openAdd() {
+    setForm(EMPTY_FORM);
+    setNameError('');
+    setAddOpen(true);
+  }
+
+  function toggleAvailable(name: string) {
+    setForm((f) => ({
+      ...f,
+      availableFor: f.availableFor.includes(name)
+        ? f.availableFor.filter((n) => n !== name)
+        : [...f.availableFor, name],
+    }));
+  }
+
   function handleAdd() {
-    const trimmed = newName.trim();
+    const trimmed = form.name.trim();
     if (!trimmed) {
       setNameError('El nombre es obligatorio.');
       return;
     }
     setNameError('');
-    create.mutate(trimmed, {
-      onSuccess: () => setNewName(''),
-    });
+    create.mutate(
+      { name: trimmed, description: form.description, availableFor: form.availableFor },
+      { onSuccess: () => setAddOpen(false) },
+    );
   }
 
   function handleDelete() {
@@ -49,6 +72,31 @@ export function ProductTypesPage() {
           {row.name}
         </Typography>
       ),
+    },
+    {
+      key: 'description',
+      header: 'Descripción',
+      render: (row) => (
+        <Typography variant="body2" color="text.secondary">
+          {row.description || '—'}
+        </Typography>
+      ),
+    },
+    {
+      key: 'availableFor',
+      header: 'Disponible para',
+      render: (row) =>
+        row.availableFor.length ? (
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.75 }}>
+            {row.availableFor.map((t) => (
+              <Chip key={t} label={t} tone="info" size="small" />
+            ))}
+          </Box>
+        ) : (
+          <Typography variant="body2" color="text.secondary">
+            —
+          </Typography>
+        ),
     },
     {
       key: 'acciones',
@@ -94,52 +142,16 @@ export function ProductTypesPage() {
         </Typography>
       </Box>
 
-      {/* Inline add row + table */}
+      {/* Table */}
       <Card
         title="Catálogo"
         icon="mdi-tag-multiple-outline"
+        action={
+          <Button icon="mdi-plus" size="sm" onClick={openAdd} loading={create.isPending}>
+            Agregar
+          </Button>
+        }
       >
-        {/* Add row */}
-        <Box
-          sx={{
-            display: 'flex',
-            alignItems: 'flex-start',
-            gap: 2,
-            mb: 3,
-          }}
-        >
-          <Box sx={{ flex: 1 }}>
-            <TextField
-              label="Nombre del tipo de producto"
-              placeholder="Ej. Patrocinio Platino"
-              value={newName}
-              onChange={(e) => {
-                setNewName(e.target.value);
-                if (nameError) setNameError('');
-              }}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  e.preventDefault();
-                  handleAdd();
-                }
-              }}
-              error={!!nameError}
-              helperText={nameError || undefined}
-              icon="mdi-tag-outline"
-            />
-          </Box>
-          <Box sx={{ pt: nameError ? 0 : 3.75 }}>
-            <Button
-              icon="mdi-plus"
-              onClick={handleAdd}
-              loading={create.isPending}
-            >
-              Agregar tipo de producto
-            </Button>
-          </Box>
-        </Box>
-
-        {/* Table */}
         <DataTable<ProductType>
           columns={columns}
           rows={query.data}
@@ -147,6 +159,70 @@ export function ProductTypesPage() {
           emptyText="No hay tipos de producto registrados."
         />
       </Card>
+
+      {/* Add dialog */}
+      <Dialog
+        open={addOpen}
+        onClose={() => setAddOpen(false)}
+        title="Agregar tipo de producto"
+        icon="mdi-tag-multiple-outline"
+        maxWidth="sm"
+        actions={
+          <>
+            <Button variant="outlined" color="secondary" onClick={() => setAddOpen(false)}>
+              Cancelar
+            </Button>
+            <Button icon="mdi-check" loading={create.isPending} onClick={handleAdd}>
+              Agregar
+            </Button>
+          </>
+        }
+      >
+        <Stack spacing={2.5} sx={{ pt: 0.5 }}>
+          <TextField
+            label="Nombre"
+            placeholder="Ej. ATTENDEES"
+            value={form.name}
+            onChange={(e) => {
+              setForm((f) => ({ ...f, name: e.target.value }));
+              if (nameError) setNameError('');
+            }}
+            error={!!nameError}
+            helperText={nameError || undefined}
+            icon="mdi-tag-outline"
+            required
+          />
+
+          <TextField
+            label="Descripción"
+            placeholder="Ej. Standard description Attendees"
+            value={form.description}
+            onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
+          />
+
+          <Box>
+            <Typography sx={{ fontWeight: 700, mb: 1 }}>Disponible para</Typography>
+            {plantTypes.isLoading ? (
+              <CircularProgress size={20} />
+            ) : plantTypeOptions.length ? (
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', columnGap: 2, rowGap: 0.5 }}>
+                {plantTypeOptions.map((t) => (
+                  <Checkbox
+                    key={t}
+                    label={t}
+                    checked={form.availableFor.includes(t)}
+                    onChange={() => toggleAvailable(t)}
+                  />
+                ))}
+              </Box>
+            ) : (
+              <Typography variant="body2" color="text.secondary">
+                No hay tipos de planta registrados.
+              </Typography>
+            )}
+          </Box>
+        </Stack>
+      </Dialog>
 
       {/* Delete confirmation dialog */}
       <Dialog
